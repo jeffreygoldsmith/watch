@@ -1,9 +1,10 @@
 //
 // Include Libraries.
 //
-
 #include "Arduino.h"
 #include "Watch.h"
+#include <Sodaq_DS3231.h>
+
 
 struct tm tm;
 
@@ -12,9 +13,16 @@ static const byte BUTTONPIN_1 = 13; // Button 1 input pin
 static const byte BUTTONPIN_2 = 12; // Button 2 input pin
 
 long counter1 = 0;
-long counter2 = ;
+long counter2 = 0;
 long counter1Prev;
 long counter2Prev;
+
+unsigned long pressMillis;
+bool firstPress;
+bool firstData;
+
+unsigned long unixPrev;
+
 //bool button1; // Latest button 1 value //! MAYBE NOT NEEDED -- DECLARED IN .H FILE?
 //bool button2; // Latest button 2 value
 //bool button1Prev; // Lagging button 1 value
@@ -68,7 +76,7 @@ Button::Button()
 //
 // Button::TakeInput() -- Take readings from buttons
 //
-Button::TakeInput()
+void Button::TakeInput()
 {
   button1 = digitalRead(BUTTONPIN_1); // Take in new readings from buttons
   button2 = digitalRead(BUTTONPIN_2);
@@ -79,7 +87,7 @@ Button::TakeInput()
   if (button2 == false && button2Prev == true) // Check if second button state has changed
     counter2++; // Increment counter
 
-  counterPrev = counter;
+  counter1Prev = counter;
   button1Prev = button1; // Update lagging values
   button2Prev = button2;
 }
@@ -104,7 +112,7 @@ Time::Time()
 void Time::Sync()
 {
   DateTime now = rtc.now(); // Take reading from RTC and update current time
-  unixPrev = now.unixtime(); // Set lagging value of unix time to be initial unix time
+  unixPrev = now.getEpoch(); // Set lagging value of unix time to be initial unix time
 }
 
 
@@ -115,11 +123,11 @@ void Time::UpdateTime()
 {
   DateTime now = rtc.now(); // Take reading from RTC and update current time
 
-  if (now.unixtime() - unixPrev == 1) // Check for second transition
+  if (now.getEpoch() - unixPrev == 1) // Check for second transition
   {
-    tm = Decode(now.unixtime()); // Compute and decode current time
+    tm = Decode(now.getEpoch()); // Compute and decode current time
   }
-  unixPrev = now.unixtime(); // Set lagging value of unix time
+  unixPrev = now.getEpoch(); // Set lagging value of unix time
 }
 
 
@@ -128,6 +136,18 @@ void Time::UpdateTime()
 //
 void Time::ChangeTime()
 {
-  
+  pressMillis = 0;
+
+  while (digitalRead(BUTTONPIN_1) == false)
+  {
+    if (!pressMillis)
+      pressMillis = millis();
+
+    if (millis() - pressMillis <= 1000)
+    {
+      // Do things here
+      break;
+    }
+  }
 }
 

@@ -30,7 +30,7 @@ class Button
     bool button2; 
     bool button1Prev; 
     bool button2Prev;
-}
+};
 
 class Time
 {
