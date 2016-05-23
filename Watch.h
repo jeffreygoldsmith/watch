@@ -15,22 +15,15 @@ struct tm
   int s;    // Second
 };
 
-class Button
+
+class Matrix
 {
   public:
-    Button();
-    void TakeInput();
-    void ChangeTime();
-    unsigned long counter;
-
-  private:
-    byte BUTTONPIN_1;
-    byte BUTTONPIN_2;
-    bool button1; 
-    bool button2; 
-    bool button1Prev; 
-    bool button2Prev;
+    Matrix();
+    void Init();
+    void DisplayTime();
 };
+
 
 class Time
 {
@@ -40,5 +33,23 @@ class Time
     void UpdateTime();
     void ChangeTime();
 };
+
+
+class Button
+{
+  public:
+    Button();
+    void Init();
+    void TakeInput();
+    void ChangeTime();
+    unsigned long counter;
+    bool button1Prev;
+    bool button2Prev;
+
+  protected:
+    byte BUTTONPIN_1;
+    byte BUTTONPIN_2;
+};
+
 
 #endif // WATCH_H

@@ -1,3 +1,5 @@
+#include "Watch.h"
+
 /*
    Name   : Jeffrey Goldsmith
    Teacher: Mr. D'Arcy
@@ -7,18 +9,22 @@
    Description: Binary wrist watch...
 */
 
-
-
-
-
-
+Time Clock;
+Matrix Display;
+Button PushButtons;
 
 void setup()
 {
-  Serial.begin(9600);
+  Display.Init();
+  PushButtons.Init();
+  Clock.Sync();
 }
 
 void loop()
 {
+  PushButtons.TakeInput();
+  Display.DisplayTime();
+  Clock.UpdateTime();
+  Clock.ChangeTime();
 }
 
