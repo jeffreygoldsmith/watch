@@ -4,7 +4,6 @@
 #include "Watch.h"
 #include <RTClib.h>
 #include <assert.h>
-#include <SparkFun_LED_8x7.h>
 #include <Chaplex.h>
 
 
@@ -16,7 +15,8 @@ static const byte bitLength[] = { 6, 6, 5, 3, 5, 4, 7 };     // Bit length of ti
 static const byte BUTTONPIN_1 = 14; // Button 1 input pin
 static const byte BUTTONPIN_2 = 15; // Button 2 input pin
 
-byte MATRIX_PINS[] = {2, 3, 4, 5, 6, 7, 8, 9};  // Pins for LEDs
+byte ctrlpins[] = { 13, 12, 11, 10, 9 }; //Arduino pins controlling charlieplexed leds
+static const byte startingPos[] = { 0, 4, 10 };
 
 unsigned long pressMill1;
 unsigned long pressMill2;
@@ -33,14 +33,14 @@ RTC_DS1307 rtc; // Create new RTC object
 //
 // Function to take time and display value on matrix.
 //
-void bitTime(int t, byte tLength, byte y)
+void bitTime(int t, byte tLength, byte startingPosition)
 {
   for (int i = 0; i < tLength; i++)
   {
     bool bitBool = bitRead(t, i); // Check each bit in t to be high or low
-    Plex.pixel(y, i, bitBool); // If bit is high set LED to be high, else set low
+    myCharlie.ledWrite(myLeds[i + startingPosition], bitBool); // If bit is high set LED to be high, else set low
   }
-  Plex.display(); // Update matrix
+  myCharlie.outRow(); // Update matrix
 }
 
 
@@ -132,9 +132,7 @@ Matrix::Matrix() {}
 //
 void Matrix::Init()
 {
-  Plex.init(MATRIX_PINS); // Initialize charlieplexed matrix
-  Plex.clear(); // Set all LEDs to off
-  Plex.display(); // Update matrix
+  Chaplex myCharlie(ctrlpins, PINS);     //control instance
 }
 
 
@@ -171,7 +169,6 @@ void Time::Sync()
   rtc.begin();
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Flash current time onto RTC
   DateTime now = rtc.now(); // Take reading from RTC and update current time
-  unixPrev = now.unixtime(); // Set lagging value of unix time to be initial unix time
 }
 
 
@@ -235,6 +232,7 @@ void Button::TakeInput()
     if (millis() - pressMill1 >= 1000)
     {
       isSet = !isSet;
+      Serial.println("Hold 1");
     } else {
       Serial.println("Press 1");
     }
