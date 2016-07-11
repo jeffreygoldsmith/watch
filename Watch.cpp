@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <Chaplex.h>
 
+#define PINS 5
+
 
 struct tm tm;
 
@@ -23,11 +25,21 @@ unsigned long pressMill2;
 bool isFirstSet = true;
 bool isFirstSleep = true;
 bool isSet = false;
+bool isSetPrev;
 
 unsigned long unixPrev;
 
 
 RTC_DS1307 rtc; // Create new RTC object
+Chaplex myCharlie(ctrlpins, PINS);     //control instance
+
+
+DateTime now = rtc.now(); // Take reading from RTC and update current time
+charlieLed myLeds[]  =  { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 }, 
+                          { 0, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 },
+                          { 0, 2 }, { 1, 2 }, { 3, 2 }, { 4, 2 },
+                          { 0, 3 }, { 1, 3 }, { 2, 3 }, { 4, 3 },
+                          { 0, 4 }, { 1, 4 }, { 2, 4 } };
 
 
 //
@@ -64,25 +76,26 @@ void pressTime(byte pin, unsigned long *pressTime)
 //
 unsigned long Encode(int y, int mon, int d, int h, int m, int s)
 {
-      int dy;
- 
-      assert(y >= 1970 && y <= 2038);
-      assert(mon >= 1 && mon <= 12);
-      assert(d >= 1 && d <= 31);
-      assert(h >= 0 && h < 60);
-      assert(m >= 0 && m < 60);
-      assert(s >= 0 && s < 60);
- 
-      static int days[] = // Days prior to start of month (origin-1)
-      {
-            0, -1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333
-      };
- 
-      dy = y - 1968; // Normalize year to leap year preceding epoch start
-      dy = (dy - 2) * 365 + (dy >> 2); // Multiply by 365.25, giving days in years
-      d -= !(y & 0x03) && mon <= 2; // Reduce day if prior to leap point in leap year
- 
-      return s + 60 * (m + 60 * (h + 24 * (dy + days[mon] + d)));
+  unsigned long dy;
+
+  assert(y >= 1970 && y <= 2038);
+  assert(mon >= 1 && mon <= 12);
+  assert(d >= 1 && d <= 31);
+  assert(h >= 0 && h < 60);
+  assert(m >= 0 && m < 60);
+  assert(s >= 0 && s < 60);
+
+  static int days[] = // Days prior to start of month (origin-1)
+  {
+    0, -1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333
+  };
+
+  dy = y - 1968; // Normalize year to leap year preceding epoch start
+  dy = (dy - 2) * 365 + (dy >> 2); // Multiply by 365.25, giving days in years
+  d -= !(y & 0x03) && mon <= 2; // Reduce day if prior to leap point in leap year
+  dy = s + 60 * (m + 60 * (h + 24 * (dy + days[mon] + d)));
+  
+  return dy;
 }
 
 
@@ -168,7 +181,6 @@ void Time::Sync()
 {
   rtc.begin();
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Flash current time onto RTC
-  DateTime now = rtc.now(); // Take reading from RTC and update current time
 }
 
 
@@ -179,10 +191,13 @@ void Time::UpdateTime()
 {
   DateTime now = rtc.now(); // Take reading from RTC and update current time
 
-  if (now.unixtime() - unixPrev == 1) // Check for second transition
-    tm = Decode(now.unixtime()); // Compute and decode current time
-
-  unixPrev = now.unixtime(); // Set lagging value of unix time
+  if (!isSet)
+  {
+    if (now.unixtime() - unixPrev == 1) // Check for second transition
+      tm = Decode(now.unixtime()); // Compute and decode current time
+  
+    unixPrev = now.unixtime(); // Set lagging value of unix time
+  }
 }
 
 
@@ -194,7 +209,14 @@ void Time::ChangeTime()
   if (isSet)
   {
     Serial.println("Set mode active.");
+  } else {
+    if (!isSet && isSetPrev)
+    {
+      DateTime newDate = (tm.y, tm.mon, tm.d, tm.wd, tm.h, tm.m, tm.s);
+      rtc.adjust(newDate);
+    }
   }
+  isSetPrev = isSet;
 }
 
 
@@ -231,7 +253,7 @@ void Button::TakeInput()
   {
     if (millis() - pressMill1 >= 1000)
     {
-      isSet = !isSet;
+      isSet != isSet;
       Serial.println("Hold 1");
     } else {
       Serial.println("Press 1");
