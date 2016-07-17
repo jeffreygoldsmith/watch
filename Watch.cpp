@@ -12,30 +12,30 @@
 struct tm tm;
 
 
-static const byte row[] = { 7, 6, 5, 4, 3, 2, 1 };           // Row number of time measurements
-static const byte bitLength[] = { 6, 6, 5, 3, 5, 4, 7 };     // Bit length of time measurements
+byte ctrlpins[] = { 13, 12, 11, 10, 9 }; //Arduino pins controlling charlieplexed leds
+static const byte startingPos[] = { 0, 4, 10 };
+static const byte bitLength[] = { 6, 6, 4 };     // Bit length of time measurements
 static const byte BUTTONPIN_1 = 14; // Button 1 input pin
 static const byte BUTTONPIN_2 = 15; // Button 2 input pin
 
-byte ctrlpins[] = { 13, 12, 11, 10, 9 }; //Arduino pins controlling charlieplexed leds
-static const byte startingPos[] = { 0, 4, 10 };
-
 unsigned long pressMill1;
 unsigned long pressMill2;
-bool isFirstSet = true;
-bool isFirstSleep = true;
 bool isSet = false;
 bool isSetPrev;
+bool isFirstSet = true;
+bool isFirstSleep = true;
+bool isFirstRT = true;
+long mill = 0;
 
 unsigned long unixPrev;
 
 
 RTC_DS1307 rtc; // Create new RTC object
-Chaplex myCharlie(ctrlpins, PINS);     //control instance
+Chaplex myCharlie(ctrlpins, PINS); // Create new chaplex object
 
 
 DateTime now = rtc.now(); // Take reading from RTC and update current time
-charlieLed myLeds[]  =  { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 }, 
+charlieLed myLeds[]  =  { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 },
                           { 0, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 },
                           { 0, 2 }, { 1, 2 }, { 3, 2 }, { 4, 2 },
                           { 0, 3 }, { 1, 3 }, { 2, 3 }, { 4, 3 },
@@ -43,7 +43,7 @@ charlieLed myLeds[]  =  { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 },
 
 
 //
-// Function to take time and display value on matrix.
+// Function to take time and display value on Display.
 //
 void bitTime(int t, byte tLength, byte startingPosition)
 {
@@ -52,7 +52,30 @@ void bitTime(int t, byte tLength, byte startingPosition)
     bool bitBool = bitRead(t, i); // Check each bit in t to be high or low
     myCharlie.ledWrite(myLeds[i + startingPosition], bitBool); // If bit is high set LED to be high, else set low
   }
-  myCharlie.outRow(); // Update matrix
+  myCharlie.outRow(); // Update Display
+}
+
+
+//
+// Function to display flashing time value on Display.
+//
+void flash(int t, byte tLength, byte startingPosition)
+{
+  if (isFirstRT) // Check if first run through
+  {
+    mill = millis(); // Record current millisecond value
+    isFirstRT = false; // Set first run through flag to false
+  }
+
+  if (millis() - mill <= 1000) // Until 1 second has passed keep LEDs on
+  {
+    bitTime(t, tLength, startingPosition); // Set state of LEDs to on
+  } else {
+    if (millis() >= mill + 2000) // Until two seconds total have passed keep first run through flag to false
+      isFirstRT = true;
+
+    bitTime(0, tLength, startingPosition); // Set state of LEDs to off
+  }
 }
 
 
@@ -72,7 +95,7 @@ void pressTime(byte pin, unsigned long *pressTime)
 
 
 //
-// CTS::Encode() -- Convert timestamp to seconds since 1 January 1970
+// Function to convert timestamp to seconds since 1 January 1970.
 //
 unsigned long Encode(int y, int mon, int d, int h, int m, int s)
 {
@@ -94,7 +117,7 @@ unsigned long Encode(int y, int mon, int d, int h, int m, int s)
   dy = (dy - 2) * 365 + (dy >> 2); // Multiply by 365.25, giving days in years
   d -= !(y & 0x03) && mon <= 2; // Reduce day if prior to leap point in leap year
   dy = s + 60 * (m + 60 * (h + 24 * (dy + days[mon] + d)));
-  
+
   return dy;
 }
 
@@ -131,36 +154,33 @@ struct tm Decode(unsigned long ts)
 
 
 //
-// Class to control information displayed on LED matrix.
+// Class to control information displayed on LED Display.
 //
 
 //
-// Matrix::Matrix() -- Class constructor
+// Display::Display() -- Class constructor
 //
-Matrix::Matrix() {}
+Display::Display() {}
 
 
 //
-// Matrix::Init() -- Initialization method
+// Display::Init() -- Initialization method
 //
-void Matrix::Init()
-{
-  Chaplex myCharlie(ctrlpins, PINS);     //control instance
+void Display::Init() 
+{ 
+  Chaplex myCharlie(ctrlpins, PINS); // Create new chaplex object
+  Serial.println("test");
 }
 
 
 //
-// Matrix::DisplayTime() -- Update LED matrix with current time
+// Display::DisplayTime() -- Update LED Display with current time
 //
-void Matrix::DisplayTime()
+void Display::DisplayTime()
 {
-  bitTime(tm.y % 100, bitLength[6], row[6]); // Display time on matrix
-  bitTime(tm.mon, bitLength[5], row[5]);
-  bitTime(tm.d, bitLength[4], row[4]);
-  bitTime(tm.wd, bitLength[3], row[3]);
-  (tm.h == 0 || tm.h == 12) ? bitTime(12, bitLength[2], row[2]) : bitTime(tm.h % 12, bitLength[2], row[2]);
-  bitTime(tm.m, bitLength[1], row[1]);
-  bitTime(tm.s, bitLength[0], row[0]);
+  //(tm.h == 0 || tm.h == 12) ? bitTime(12, bitLength[2], startingPosition[2]) : bitTime(tm.h % 12, bitLength[2], startingPosition[2]);
+  //bitTime(tm.m, bitLength[1], startingPosition[1]);
+  flash(tm.s, bitLength[0], startingPos[0]);
 }
 
 
@@ -195,9 +215,10 @@ void Time::UpdateTime()
   {
     if (now.unixtime() - unixPrev == 1) // Check for second transition
       tm = Decode(now.unixtime()); // Compute and decode current time
-  
+
     unixPrev = now.unixtime(); // Set lagging value of unix time
   }
+  Serial.println(now.unixtime());
 }
 
 
@@ -206,17 +227,18 @@ void Time::UpdateTime()
 //
 void Time::ChangeTime()
 {
-  if (isSet)
+  Serial.begin(9600);
+  if (isSet) // Check if watch is in set mode
   {
     Serial.println("Set mode active.");
   } else {
-    if (!isSet && isSetPrev)
+    if (!isSet && isSetPrev) // Check for set mode transition
     {
-      DateTime newDate = (tm.y, tm.mon, tm.d, tm.wd, tm.h, tm.m, tm.s);
+      DateTime newDate = (tm.y, tm.mon, tm.d, tm.wd, tm.h, tm.m, tm.s); // Adjust RTC time to time set by user
       rtc.adjust(newDate);
     }
   }
-  isSetPrev = isSet;
+  isSetPrev = isSet; // Set lagging variable for set
 }
 
 
@@ -246,6 +268,7 @@ void Button::Init()
 //
 void Button::TakeInput()
 {
+  Serial.begin(9600);
   //
   // Check for button presses.
   //

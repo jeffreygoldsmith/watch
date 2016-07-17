@@ -9,22 +9,23 @@
    Description: Binary wrist watch...
 */
 
-Time Clock;
-Matrix Display;
+Time RTC;
+Display LEDS;
 Button PushButtons;
 
 void setup()
 {
-  Display.Init();
-  PushButtons.Init();
-  Clock.Sync();
+  Serial.begin(9600);
+  Serial.println("test");
+  LEDS.Init();
+  RTC.Sync();
+  //PushButtons.Init();
 }
 
 void loop()
 {
-  PushButtons.TakeInput();
-  Display.DisplayTime();
-  Clock.UpdateTime();
-  Clock.ChangeTime();
+  //PushButtons.TakeInput();
+  RTC.UpdateTime();
+  LEDS.DisplayTime();
+  //Clock.ChangeTime();
 }
-

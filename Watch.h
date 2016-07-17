@@ -16,10 +16,10 @@ struct tm
 };
 
 
-class Matrix
+class Display
 {
   public:
-    Matrix();
+    Display();
     void Init();
     void DisplayTime();
 };
