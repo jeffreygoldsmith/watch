@@ -12,19 +12,29 @@
 struct tm tm;
 
 
+
+
+
 byte ctrlpins[] = { 13, 12, 11, 10, 9 }; //Arduino pins controlling charlieplexed leds
-static const byte startingPos[] = { 0, 4, 10 };
+static const byte startingPos[] = { 0, 6, 14 };
+static const byte setLookup[][2] = { { 1, 2 }, { 0 ,2 }, { 0, 1 } };
 static const byte bitLength[] = { 6, 6, 4 };     // Bit length of time measurements
+static const byte timeOverflowAmount[] = { 60, 60, 24 }; // Amount before each time measurement overflows
+static const int FLASH_DELAY = 750;
 static const byte BUTTONPIN_1 = 14; // Button 1 input pin
 static const byte BUTTONPIN_2 = 15; // Button 2 input pin
 
+byte tempTime[3]; // Temporary time values for set mode
+byte row = 0; // Current selected for set mode
+
 unsigned long pressMill1;
 unsigned long pressMill2;
-bool isSet = false;
-bool isSetPrev;
-bool isFirstSet = true;
-bool isFirstSleep = true;
-bool isFirstRT = true;
+bool isSet = false; // Boolean to indicate set mode
+bool isSetPrev; // Lagging variable for isSet
+bool isFirstSet = true; // First run through check for set mode
+bool isFirstB1 = true; // First run through check for button one
+bool isFirstB2 = true; // First run through check for button two
+bool isFirstFlash = true; // First run through check for flash function
 long mill = 0;
 
 unsigned long unixPrev;
@@ -34,7 +44,6 @@ RTC_DS1307 rtc; // Create new RTC object
 Chaplex myCharlie(ctrlpins, PINS); // Create new chaplex object
 
 
-DateTime now = rtc.now(); // Take reading from RTC and update current time
 charlieLed myLeds[]  =  { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 },
                           { 0, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 },
                           { 0, 2 }, { 1, 2 }, { 3, 2 }, { 4, 2 },
@@ -61,18 +70,18 @@ void bitTime(int t, byte tLength, byte startingPosition)
 //
 void flash(int t, byte tLength, byte startingPosition)
 {
-  if (isFirstRT) // Check if first run through
+  if (isFirstFlash) // Check if first run through
   {
     mill = millis(); // Record current millisecond value
-    isFirstRT = false; // Set first run through flag to false
+    isFirstFlash = false; // Set first run through flag to false
   }
-
-  if (millis() - mill <= 1000) // Until 1 second has passed keep LEDs on
+  
+  if (millis() - mill <= FLASH_DELAY) // Until 1 second has passed keep LEDs on
   {
     bitTime(t, tLength, startingPosition); // Set state of LEDs to on
   } else {
-    if (millis() >= mill + 2000) // Until two seconds total have passed keep first run through flag to false
-      isFirstRT = true;
+    if (millis() >= mill + FLASH_DELAY * 2) // Until two seconds total have passed keep first run through flag to false
+      isFirstFlash = true;
 
     bitTime(0, tLength, startingPosition); // Set state of LEDs to off
   }
@@ -166,11 +175,7 @@ Display::Display() {}
 //
 // Display::Init() -- Initialization method
 //
-void Display::Init() 
-{ 
-  Chaplex myCharlie(ctrlpins, PINS); // Create new chaplex object
-  Serial.println("test");
-}
+void Display::Init() {}
 
 
 //
@@ -178,9 +183,20 @@ void Display::Init()
 //
 void Display::DisplayTime()
 {
-  //(tm.h == 0 || tm.h == 12) ? bitTime(12, bitLength[2], startingPosition[2]) : bitTime(tm.h % 12, bitLength[2], startingPosition[2]);
-  //bitTime(tm.m, bitLength[1], startingPosition[1]);
-  flash(tm.s, bitLength[0], startingPos[0]);
+  
+  if (!isSet)
+  {
+    (tm.h == 0 || tm.h == 12) ? bitTime(12, bitLength[2], startingPos[2]) : bitTime(tm.h % 12, bitLength[2], startingPos[2]);
+    bitTime(tm.m, bitLength[1], startingPos[1]);
+    bitTime(tm.s, bitLength[0], startingPos[0]);
+  } else {
+    if (row == 2 && tempTime[2] == 0) // Check if hour is 12
+      flash(12, bitLength[2], startingPos[2]); // Account for 12th hour case
+
+    bitTime(tempTime[setLookup[row][1]], bitLength[setLookup[row][1]], startingPos[setLookup[row][1]]);
+    bitTime(tempTime[setLookup[row][0]], bitLength[setLookup[row][0]], startingPos[setLookup[row][0]]);
+    flash(tempTime[row], bitLength[row], startingPos[row]);
+  }
 }
 
 
@@ -214,11 +230,14 @@ void Time::UpdateTime()
   if (!isSet)
   {
     if (now.unixtime() - unixPrev == 1) // Check for second transition
+    {
       tm = Decode(now.unixtime()); // Compute and decode current time
+      Serial.println(tempTime[2]);
+      Serial.println(tm.h);
+    }
 
     unixPrev = now.unixtime(); // Set lagging value of unix time
   }
-  Serial.println(now.unixtime());
 }
 
 
@@ -227,15 +246,24 @@ void Time::UpdateTime()
 //
 void Time::ChangeTime()
 {
-  Serial.begin(9600);
   if (isSet) // Check if watch is in set mode
   {
-    Serial.println("Set mode active.");
+    if (isFirstSet) // Check for first run through
+    {
+      isFirstSet = false;
+      row = 0;
+      
+      tempTime[2] = tm.h % 12; // Set temporary time values
+      tempTime[1] = tm.m;
+      tempTime[0] = tm.s;
+    }
   } else {
     if (!isSet && isSetPrev) // Check for set mode transition
     {
-      DateTime newDate = (tm.y, tm.mon, tm.d, tm.wd, tm.h, tm.m, tm.s); // Adjust RTC time to time set by user
-      rtc.adjust(newDate);
+      isFirstSet = true;
+      tm = Decode(Encode(tm.y, tm.mon, tm.d, tempTime[2], tempTime[1], tempTime[0]));
+      
+      rtc.adjust(DateTime(tm.y, tm.mon, tm.d, tm.h, tm.m, tm.s)); // Adjust RTC time to time set by user
     }
   }
   isSetPrev = isSet; // Set lagging variable for set
@@ -257,9 +285,8 @@ Button::Button() {}
 //
 void Button::Init()
 {
-  Serial.begin(9600);
-  pinMode(BUTTONPIN_1, INPUT);
-  pinMode(BUTTONPIN_2, INPUT);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
 }
 
 
@@ -268,35 +295,42 @@ void Button::Init()
 //
 void Button::TakeInput()
 {
-  Serial.begin(9600);
   //
   // Check for button presses.
   //
-  if (digitalRead(A0) && !button1Prev && isFirstSet)
+  if (digitalRead(A0) && !button1Prev && isFirstB1)
   {
     if (millis() - pressMill1 >= 1000)
     {
-      isSet != isSet;
+      isSet = !isSet;
       Serial.println("Hold 1");
     } else {
+      if (isSet)
+      {
+        row = (row + 1) % 3;
+      }
       Serial.println("Press 1");
     }
-    isFirstSet = false;
+    isFirstB1 = false;
   } else {
-    isFirstSet = true;
+    isFirstB1 = true;
   }
 
-  if (digitalRead(A1) && !button2Prev && isFirstSleep)
+  if (digitalRead(A1) && !button2Prev && isFirstB2)
   {
     if (millis() - pressMill2 >= 1000)
     {
       Serial.println("Hold 2");
     } else {
+      if (isSet)
+      {
+        tempTime[row] = (tempTime[row] + 1) % timeOverflowAmount[row];
+      }
       Serial.println("Press 2");
     }
-    isFirstSleep = false;
+    isFirstB2 = false;
   } else {
-    isFirstSleep = true;
+    isFirstB2 = true;
   }
 
   pressTime(A0, &pressMill1);
