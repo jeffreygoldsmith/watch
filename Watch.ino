@@ -2,11 +2,9 @@
 
 /*
    Name   : Jeffrey Goldsmith
-   Teacher: Mr. D'Arcy
-   Date   : 29 March 2016
-   Course : TEI3M
+   Date   : Started - 29 March 2016
 
-   Description: Binary wrist watch...
+   Description: Microcontroller code for a binary wrist watch
 */
 
 Time Clock;
