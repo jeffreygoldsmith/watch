@@ -5,7 +5,7 @@
 //
 // Function to detect amount of time a button has been pressed.
 //
-void pressTime(byte pin, unsigned long *pressTime)
+void pressTime(int pin, unsigned long *pressTime)
 {
   if (!digitalRead(pin))
   {
@@ -17,15 +17,18 @@ void pressTime(byte pin, unsigned long *pressTime)
 }
 
 //
-// Button::Button() -- Class constructor
+// Input::Input() -- Class constructor
 //
-Button::Button() {}
+Input::Input(Row rows)
+{
+  this.rows = rows;
+}
 
 
 //
-// Button::Init() -- Initialization method
+// Input::Init() -- Initialization method
 //
-void Button::Init()
+void Input::Init()
 {
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
@@ -33,9 +36,9 @@ void Button::Init()
 
 
 //
-// Button::TakeInput() -- Take readings from buttons
+// Input::TakeInput() -- Take readings from buttons
 //
-void Button::TakeInput()
+void Input::TakeInput()
 {
   //
   // Check for button presses.

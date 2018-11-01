@@ -4,11 +4,11 @@
 #include "Arduino.h"
 #include "Row.h"
 
-class Button
+class Input
 {
   public:
-    Button();
-    void Init(Row);
+    Input(Row);
+    void Init();
     void TakeInput();
     void ChangeTime();
 

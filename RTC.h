@@ -7,15 +7,16 @@
 class RTC
 {
   public:
-    RTC();
-    void Init(Row);
-    void Sync();
+    RTC(Row);
+    void Init();
     void UpdateTime();
-    void ChangeTime();
+    void SetTime(tm);
 
-    Row row;
+    Row rows;
 
 	protected:
+    bool isEditingModeEnabled();
+
 		rtc RTC_DS1307
 };
 
