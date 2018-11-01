@@ -2,24 +2,23 @@
 #define INPUT_H
 
 #include "Arduino.h"
+#include "Button.h"
+#include "RTC.h"
 #include "Row.h"
 
 class Input
 {
   public:
-    Input(Row);
+    Input(Row[], RTC, int, int);
     void Init();
+    void toggleSet();
+    void changeRow();
+    void increaseTimeValue();
     void TakeInput();
-    void ChangeTime();
 
-    Row row;
-    unsigned long counter;
-    bool button1Prev;
-    bool button2Prev;
-
-  protected:
-    byte BUTTONPIN_1;
-    byte BUTTONPIN_2;
+    Row rows[];
+    Button buttonOne;
+    Button buttonTwo;
 };
 
 #endif // INPUT_H

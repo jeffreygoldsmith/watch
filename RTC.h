@@ -12,11 +12,9 @@ class RTC
     void UpdateTime();
     void SetTime(tm);
 
-    Row rows;
+    Row rows[];
 
 	protected:
-    bool isEditingModeEnabled();
-
 		rtc RTC_DS1307
 };
 

@@ -54,24 +54,9 @@ void RTC::Read()
 //
 // RTC::SetTime() -- Update RTC time from a tm struct
 //
-void RTC::SetTIme(tm tm)
+void RTC::SetTime(tm tm)
 {
-  rtc.adjust(DateTime(tm.y, tm.mon, tm.d, tm.h, tm.m, tm.s)); // Adjust RTC time to time set by user
-}
-
-
-//
-// Function to check to see
-//
-bool RTC::isEditingModeEnabled()
-{
-  bool isEditingModeEnabled = false;
-
-  for (int i = 0; i < sizeof(this.rows); i++)
-  {
-    if (this.rows[i].selected)
-      return true;
-  }
-
-  return false;
+  DateTime now = rtc.now();
+  
+  rtc.adjust(DateTime(now.y, now.mon, now.d, tm.h, tm.m, tm.s)); // Adjust RTC time to time set by user
 }

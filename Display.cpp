@@ -2,6 +2,7 @@
 #include <Chaplex.h>
 
 #define CONTROL_PIN_LENGTH 5
+#define FLASH_DELAY 750
 
 static const byte controlPins[] = { 2, 3, 4, 5, 6 };
 Chaplex ledDisplay(controlPins, CONTROL_PIN_LENGTH);
@@ -43,9 +44,9 @@ void Display::DisplayRow(Row row)
 }
 
 //
-// Display::DisplayTime() -- Update LED Display with current time
+// Display::UpdateDisplay() -- Update LED Display with current time
 //
-void Display::DisplayTime()
+void Display::UpdateDisplay()
 {
   for (int i = 0; i < sizeof(Display.rows); i++)
     DisplayRow(rows[i]);

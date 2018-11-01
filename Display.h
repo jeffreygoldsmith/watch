@@ -9,7 +9,7 @@ class Display
   public:
     Display();
     void Init(Row);
-    void DisplayTime();
+    void UpdateDisplay();
     void DisplayRow(Row);
 
     Row row;
