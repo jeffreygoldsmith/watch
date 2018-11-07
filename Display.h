@@ -1,23 +1,27 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+// #ifndef DISPLAY_H
+// #define DISPLAY_H
 
-#include "Arduino.h"
-#include "Row.h"
+// #include "Arduino.h"
+// #include "Row.h"
+// #include <ArduinoSTL.h>
 
-class Display
-{
-  public:
-    Display();
-    void Init(Row);
-    void UpdateDisplay();
-    void DisplayRow(Row);
+// using namespace std;
 
-    Row row;
+// class Display
+// {
+//   public:
+//     Display(vector<Row>);
+//     void UpdateDisplay();
+//     void DisplayRow(Row);
 
-  protected:
-    void displaySolid(Row);
-    void displayFlash(Row);
-    bool isWatchInSetMode;
-};
+//     vector<Row> rows;
 
-#endif // DISPLAY_H
+//   protected:
+//     void solid(Row);
+//     void flash(Row);
+//     bool isFirstFlash;
+//     unsigned long mill;
+//     bool isWatchInSetMode;
+// };
+
+// #endif // DISPLAY_H

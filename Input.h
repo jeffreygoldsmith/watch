@@ -1,24 +1,28 @@
-#ifndef INPUT_H
-#define INPUT_H
+// #ifndef INPUT_H
+// #define INPUT_H
 
-#include "Arduino.h"
-#include "Button.h"
-#include "RTC.h"
-#include "Row.h"
+// #include "Arduino.h"
+// #include "Button.h"
+// #include "RTC.h"
+// #include "Row.h"
+// #include <ArduinoSTL.h>
 
-class Input
-{
-  public:
-    Input(Row[], RTC, int, int);
-    void Init();
-    void toggleSet();
-    void changeRow();
-    void increaseTimeValue();
-    void TakeInput();
+// using namespace std;
 
-    Row rows[];
-    Button buttonOne;
-    Button buttonTwo;
-};
+// class Input
+// {
+//   public:
+//     Input(vector<Row>, RTC, int, int);
+//     void Init();
+//     void toggleSet();
+//     void changeRow();
+//     void increaseTimeValue();
+//     void TakeInput();
 
-#endif // INPUT_H
+//     vector<Row> rows;
+//     RTC rtc;
+//     Button buttonOne;
+//     Button buttonTwo;
+// };
+
+// #endif // INPUT_H

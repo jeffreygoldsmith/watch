@@ -1,6 +1,10 @@
 #ifndef ROW_H
 #define ROW_H
 
+#include <ArduinoSTL.h>
+
+using namespace std;
+
 struct Row {
   int timeValue;
   int maxTimeValue;
@@ -9,11 +13,9 @@ struct Row {
   bool isSelectedForEditing;
 };
 
-bool isRowSelected(Row rows[])
+bool isEditingModeEnabled(vector<Row> rows)
 {
-  bool isEditingModeEnabled = false;
-
-  for (int i = 0; i < sizeof(rows); i++)
+  for (int i = 0; i < rows.size(); i++)
   {
     if (rows[i].isSelectedForEditing)
       return true;
@@ -22,18 +24,18 @@ bool isRowSelected(Row rows[])
   return false;
 }
 
-void deselectRows(Row rows[])
+void deselectRows(vector<Row> rows)
 {
-  for (int i = 0; i < sizeof(rows); i++)
+  for (int i = 0; i < rows.size(); i++)
   {
     if (rows[i].isSelectedForEditing)
       rows[i].isSelectedForEditing = false;
   }
 }
 
-int indexOfSelectedRow(Row rows[])
+int indexOfSelectedRow(vector<Row> rows)
 {
-  for (int i = 0; i < sizeof(rows); i++)
+  for (int i = 0; i < rows.size(); i++)
   {
     if (rows[i].isSelectedForEditing)
       return i;

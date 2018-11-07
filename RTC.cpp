@@ -1,4 +1,4 @@
-#include <RTClib.h>
+#include "RTC.h"
 
 
 //
@@ -12,16 +12,16 @@ unsigned long unixTimePrev;
 //
 // RTC::RTC() -- Class constructor
 //
-RTC::RTC() 
+RTC::RTC(vector<Row> rows)
 {
-  this.rows = rows;
+  this->rows = rows;
 }
 
 
 //
 // Function to initialize RTC.
 //
-void RTC::Init(Row rows)
+void RTC::Init()
 {
   rtc.begin();
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Flash current time onto RTC
@@ -35,15 +35,15 @@ void RTC::Read()
 {
   DateTime now = rtc.now(); // Take reading from RTC and update current time
 
-  if (!this.isEditingModeEnabled())
+  if (!isEditingModeEnabled(rows))
   {
     if (now.unixtime() - unixTimePrev == 1) // Check for second transition
     {
-      tm = Decode(now.unixtime()); // Compute and decode current time
+      tm decodedTime = Decode(now.unixtime()); // Compute and decode current time
 
-      this.rows[0].timeValue = tm.h; // Set row time values
-      this.rows[1].timeValue = tm.m;
-      this.rows[2].timeValue = tm.s;
+      rows[0].timeValue = decodedTime.h; // Set row time values
+      rows[1].timeValue = decodedTime.m;
+      rows[2].timeValue = decodedTime.s;
     }
 
     unixTimePrev = now.unixtime(); // Set lagging value of unix time
@@ -58,5 +58,5 @@ void RTC::SetTime(tm tm)
 {
   DateTime now = rtc.now();
   
-  rtc.adjust(DateTime(now.y, now.mon, now.d, tm.h, tm.m, tm.s)); // Adjust RTC time to time set by user
+  rtc.adjust(DateTime(now.year(), now.month(), now.day(), tm.h, tm.m, tm.s)); // Adjust RTC time to time set by user
 }

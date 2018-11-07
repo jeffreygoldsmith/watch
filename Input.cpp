@@ -1,83 +1,84 @@
-#include "Input.h"
+// #include "Input.h"
 
-//
-// Class to control buttons
-//
+// //
+// // Class to control buttons
+// //
 
+// void empty() {}
 
-//
-// Input::Input() -- Class constructor
-//
-Input::Input(Row rows, RTC rtc, int buttonOnePin, int buttonTwoPin)
-{
-  this.rows = rows;
-  this.rtc = rtc;
-  this.buttonOne = Button(buttonOnePin, this.changeRow, this.toggleSet);
-  this.buttonTwo = Button(buttonTwoPin, this.increaseTimeValue, void empty() {});
-}
-
-
-//
-// Input::Init() -- Initialization method
-//
-void Input::Init()
-{
-  this.buttonOne.Init();
-  this.buttonTwo.Init();
-}
+// //
+// // Input::Input() -- Class constructor
+// //
+// Input::Input(vector<Row> rows, RTC rtc, int buttonOnePin, int buttonTwoPin)
+// {
+//   this->rows = rows;
+//   this->rtc = rtc;
+//   buttonOne = new Button(buttonOnePin, empty, empty);
+//   buttonTwo = new Button(buttonTwoPin, empty, empty);
+// }
 
 
-//
-// Input::toggleSet() -- Toggle set mode of watch
-//
-void Input::toggleSet()
-{
-  if (isRowSelected(this.rows))
-  {
-    deselectRows(this.rows);
-    tm tm;
-    tm.h = this.rows[0].timeValue;
-    tm.m = this.rows[1].timeValue;
-    tm.s = this.rows[2].timeValue;
-    this.rtc.SetTime(tm);
-  } else {
-    this.rows[0].isSelectedForEditing = true;
-  }
-}
+// //
+// // Input::Init() -- Initialization method
+// //
+// void Input::Init()
+// {
+//   buttonOne.Init();
+//   buttonTwo.Init();
+// }
 
 
-//
-// Input::changeRow() -- Change current row selected
-//
-void Input::changeRow()
-{
-  if (!isRowSelected(this.rows))
-    return;
-
-  int selectedRowIndex = indexOfSelectedRow(this.rows);
-  this.rows[selectedRowIndex].isSelectedForEditing = false;
-  this.rows[selectedRowIndex + 1 % sizeof(this.rows)].isSelectedForEditing = true;
-}
-
-
-//
-// Input::increaseTimeValue() -- Increase time value of currently selected row
-//
-void Input::increaseTimeValue()
-{
-  if (!isRowSelected(this.rows))
-    return;
-
-  int selectedRowIndex = indexOfSelectedRow(this.rows);
-  this.rows[selectedRowIndex].timeValue = this.rows[selectedRowIndex].timeValue + 1 % this.rows[selectedRowIndex].maxTimeValue;
-}
+// //
+// // Input::toggleSet() -- Toggle set mode of watch
+// //
+// void Input::toggleSet()
+// {
+//   if (isEditingModeEnabled(rows))
+//   {
+//     deselectRows(rows);
+//     tm tm;
+//     tm.h = rows[0].timeValue;
+//     tm.m = rows[1].timeValue;
+//     tm.s = rows[2].timeValue;
+//     rtc.SetTime(tm);
+//   } else {
+//     rows[0].isSelectedForEditing = true;
+//   }
+// }
 
 
-//
-// Input::TakeInput() -- Take readings from input sources
-//
-void Input::TakeInput()
-{
-  this.buttonOne.Poll();
-  this.buttonTwo.Poll();
-}
+// //
+// // Input::changeRow() -- Change current row selected
+// //
+// void Input::changeRow()
+// {
+//   if (!isEditingModeEnabled(rows))
+//     return;
+
+//   int selectedRowIndex = indexOfSelectedRow(rows);
+//   rows[selectedRowIndex].isSelectedForEditing = false;
+//   rows[selectedRowIndex + 1 % sizeof(rows)].isSelectedForEditing = true;
+// }
+
+
+// //
+// // Input::increaseTimeValue() -- Increase time value of currently selected row
+// //
+// void Input::increaseTimeValue()
+// {
+//   if (!isEditingModeEnabled(rows))
+//     return;
+
+//   int selectedRowIndex = indexOfSelectedRow(rows);
+//   rows[selectedRowIndex].timeValue = rows[selectedRowIndex].timeValue + 1 % rows[selectedRowIndex].maxTimeValue;
+// }
+
+
+// //
+// // Input::TakeInput() -- Take readings from input sources
+// //
+// void Input::TakeInput()
+// {
+//   buttonOne.Poll();
+//   buttonTwo.Poll();
+// }
