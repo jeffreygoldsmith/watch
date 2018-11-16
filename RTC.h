@@ -1,24 +1,21 @@
-#include "Arduino.h"
-#include "RTClib.h"
-#include "Time.h"
-#include "Row.h"
-#include <ArduinoSTL.h>
-
 #ifndef RTC_H
 #define RTC_H
 
-
-using namespace std;
+#include "Arduino.h"
+#include "RTClib.h"
+#include "Time.h"
+#include <Vector.h>
+#include "Row.h"
 
 class RTC
 {
   public:
-    RTC(vector<Row>);
-    void Init();
+    RTC();
+    void Init(Vector<Row>);
     void Read();
     void SetTime(tm);
 
-    vector<Row> rows;
+    Vector<Row> rows;
 
 	protected:
 		RTC_DS1307 rtc;

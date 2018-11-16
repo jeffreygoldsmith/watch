@@ -12,17 +12,15 @@ unsigned long unixTimePrev;
 //
 // RTC::RTC() -- Class constructor
 //
-RTC::RTC(vector<Row> rows)
-{
-  this->rows = rows;
-}
+RTC::RTC() {}
 
 
 //
 // Function to initialize RTC.
 //
-void RTC::Init()
+void RTC::Init(Vector<Row> rows)
 {
+  this->rows = rows;
   rtc.begin();
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Flash current time onto RTC
 }

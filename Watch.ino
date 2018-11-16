@@ -1,8 +1,8 @@
-// #include "RTC.h"
-// #include "Input.h"
-// #include "Display.h"
+#include "RTC.h"
+#include "Input.h"
+#include "Display.h"
 #include "Row.h"
-#include <ArduinoSTL.h>
+#include <Vector.h>
 
 using namespace std;
 
@@ -33,22 +33,23 @@ Row hourRow = Row{0, HOUR_OVERFLOW, HOUR_BIT_LENGTH, HOUR_LED_ARRAY_INDEX, false
 Row minuteRow = Row{0, MINUTE_OVERFLOW, MINUTE_BIT_LENGTH, MINUTE_LED_ARRAY_INDEX, false};
 Row secondRow = Row{0, SECOND_OVERFLOW, SECOND_BIT_LENGTH, SECOND_LED_ARRAY_INDEX, false};
 Row rowArray[] = { hourRow, minuteRow, secondRow };
-vector<Row> rows(rowArray, rowArray + sizeof(rowArray) / sizeof(Row));
+Vector<Row> rows(rowArray);
 
-// RTC rtc(rows);
+RTC rtc;
 // Input input(rows, rtc, BUTTON_PIN_1, BUTTON_PIN_2);
-// Display display(rows);
+Display display;
 
 void setup()
 {
   Serial.begin(9600);
-  // rtc.Init();
+  rtc.Init(rows);
   // input.Init();
+  display.Init(rows);
 }
 
 void loop()
 {
   // input.TakeInput();
-  // rtc.Read();
-  // display.UpdateDisplay();
+  rtc.Read();
+  display.UpdateDisplay();
 }
