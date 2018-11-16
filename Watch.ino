@@ -1,29 +1,55 @@
-#include "Watch.h"
+#include "RTC.h"
+#include "Input.h"
+#include "Display.h"
+#include "Row.h"
+#include <Vector.h>
+
+using namespace std;
 
 /*
    Name   : Jeffrey Goldsmith
-   Date   : Started - 29 March 2016
+   Date   : 29 March 2016
 
-   Description: Microcontroller code for a binary wrist watch
+   Description: Binary wrist watch...
 */
 
-Time Clock;
-Display LEDS;
-Button PushButtons;
+#define BUTTON_PIN_1 A0
+#define BUTTON_PIN_2 A1
+
+#define HOUR_BIT_LENGTH 4
+#define MINUTE_BIT_LENGTH 6
+#define SECOND_BIT_LENGTH 6
+
+#define HOUR_OVERFLOW 24
+#define MINUTE_OVERFLOW 60
+#define SECOND_OVERFLOW 60
+
+#define HOUR_LED_ARRAY_INDEX 14
+#define MINUTE_LED_ARRAY_INDEX 6
+#define SECOND_LED_ARRAY_INDEX 0
+
+
+Row hourRow = Row{0, HOUR_OVERFLOW, HOUR_BIT_LENGTH, HOUR_LED_ARRAY_INDEX, false};
+Row minuteRow = Row{0, MINUTE_OVERFLOW, MINUTE_BIT_LENGTH, MINUTE_LED_ARRAY_INDEX, false};
+Row secondRow = Row{0, SECOND_OVERFLOW, SECOND_BIT_LENGTH, SECOND_LED_ARRAY_INDEX, false};
+Row rowArray[] = { hourRow, minuteRow, secondRow };
+Vector<Row> rows(rowArray);
+
+RTC rtc;
+// Input input(rows, rtc, BUTTON_PIN_1, BUTTON_PIN_2);
+Display display;
 
 void setup()
 {
   Serial.begin(9600);
-  LEDS.Init();
-  Clock.Sync();
-  PushButtons.Init();
+  rtc.Init(rows);
+  // input.Init();
+  display.Init(rows);
 }
 
 void loop()
 {
-  PushButtons.TakeInput();
-  Clock.UpdateTime();
-  LEDS.DisplayTime();
-  Clock.ChangeTime();
+  // input.TakeInput();
+  rtc.Read();
+  display.UpdateDisplay();
 }
-
