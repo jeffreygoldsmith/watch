@@ -18,9 +18,9 @@ RTC::RTC() {}
 //
 // Function to initialize RTC.
 //
-void RTC::Init(Vector<Row*> rows)
+void RTC::Init(TimeRows *timeRows)
 {
-  this->rows = rows;
+  this->timeRows = timeRows;
   rtc.begin();
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Flash current time onto RTC
 }
@@ -33,15 +33,15 @@ void RTC::Read()
 {
   DateTime now = rtc.now(); // Take reading from RTC and update current time
 
-  if (!isEditingModeEnabled(rows))
+  if (!timeRows->isEditingModeEnabled())
   {
     if (now.unixtime() - unixTimePrev == 1) // Check for second transition
     {
       tm decodedTime = Decode(now.unixtime()); // Compute and decode current time
 
-      rows[0].timeValue = decodedTime.h; // Set row time values
-      rows[1].timeValue = decodedTime.m;
-      rows[2].timeValue = decodedTime.s;
+      timeRows->rows[0].timeValue = decodedTime.h; // Set row time values
+      timeRows->rows[1].timeValue = decodedTime.m;
+      timeRows->rows[2].timeValue = decodedTime.s;
     }
 
     unixTimePrev = now.unixtime(); // Set lagging value of unix time

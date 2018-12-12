@@ -1,7 +1,7 @@
 #include "RTC.h"
 #include "Input.h"
 #include "Display.h"
-#include "Row.h"
+#include "TimeRows.h"
 #include <Vector.h>
 
 using namespace std;
@@ -32,8 +32,9 @@ using namespace std;
 Row hourRow = Row{0, HOUR_OVERFLOW, HOUR_BIT_LENGTH, HOUR_LED_ARRAY_INDEX, false};
 Row minuteRow = Row{0, MINUTE_OVERFLOW, MINUTE_BIT_LENGTH, MINUTE_LED_ARRAY_INDEX, false};
 Row secondRow = Row{0, SECOND_OVERFLOW, SECOND_BIT_LENGTH, SECOND_LED_ARRAY_INDEX, false};
-Row *rowArray[] = { &hourRow, &minuteRow, &secondRow };
-Vector<Row*> rows(rowArray);
+Row rowArray[] = { hourRow, minuteRow, secondRow };
+Vector<Row> rowVector(rowArray);
+TimeRows rows(rowVector);
 
 RTC rtc;
 Input input;
@@ -42,14 +43,14 @@ Display display;
 void setup()
 {
   Serial.begin(9600);
-  rtc.Init(rows);
-  input.Init(rows, &rtc, BUTTON_PIN_1, BUTTON_PIN_2);
-  display.Init(rows);
+  rtc.Init(&rows);
+  input.Init(&rows, &rtc, BUTTON_PIN_1, BUTTON_PIN_2);
+  display.Init(&rows);
 }
 
 void loop()
 {
-  // input.TakeInput();
+  input.TakeInput();
   rtc.Read();
   display.UpdateDisplay();
 }

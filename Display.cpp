@@ -26,9 +26,19 @@ Display::Display() {}
 //
 // Display::Init() -- Class initializer
 //
-void Display::Init(Vector<Row*> rows)
+void Display::Init(TimeRows *timeRows)
 {
-  this->rows = rows;
+  this->timeRows = timeRows;
+}
+
+
+//
+// Display::UpdateDisplay() -- Update LED Display with current time
+//
+void Display::UpdateDisplay()
+{
+  for (int i = 0; i < timeRows->rows.size(); i++)
+    DisplayRow(timeRows->rows[i]);
 }
 
 
@@ -41,15 +51,6 @@ void Display::DisplayRow(Row row)
     flash(row);
   else
     solid(row);
-}
-
-//
-// Display::UpdateDisplay() -- Update LED Display with current time
-//
-void Display::UpdateDisplay()
-{
-  for (int i = 0; i < sizeof(rows); i++)
-    DisplayRow(rows[i]);
 }
 
 

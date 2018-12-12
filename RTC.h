@@ -4,18 +4,17 @@
 #include "Arduino.h"
 #include "RTClib.h"
 #include "Time.h"
-#include <Vector.h>
-#include "Row.h"
+#include "TimeRows.h"
 
 class RTC
 {
   public:
     RTC();
-    void Init(Vector<Row*>);
+    void Init(TimeRows *timeRows);
     void Read();
     void SetTime(tm);
 
-    Vector<Row*> rows;
+    TimeRows *timeRows;
 
 	protected:
 		RTC_DS1307 rtc;

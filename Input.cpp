@@ -15,9 +15,9 @@ Input::Input() {}
 //
 // Input::Init() -- Class initializer
 //
-void Input::Init(Vector<Row*> rows, RTC *rtc, int buttonOnePin, int buttonTwoPin)
+void Input::Init(TimeRows *timeRows, RTC *rtc, int buttonOnePin, int buttonTwoPin)
 {
-  this->rows = rows;
+  this->timeRows = timeRows;
   this->rtc = rtc;
   buttonOne->Init(this, buttonOnePin, changeRow, toggleSet);
   buttonTwo->Init(this, buttonTwoPin, increaseTimeValue, changeRow);
@@ -39,16 +39,17 @@ void Input::TakeInput()
 //
 void Input::toggleSet(Input* input)
 {
-  if (isEditingModeEnabled(input->rows))
+  TimeRows *timeRows = input->timeRows;
+  if (timeRows->isEditingModeEnabled())
   {
-    deselectRows(input->rows);
+    timeRows->deselectRows();
     tm tm;
-    tm.h = input->rows[0].timeValue;
-    tm.m = input->rows[1].timeValue;
-    tm.s = input->rows[2].timeValue;
+    tm.h = timeRows->rows[0].timeValue;
+    tm.m = timeRows->rows[1].timeValue;
+    tm.s = timeRows->rows[2].timeValue;
     input->rtc->SetTime(tm);
   } else {
-    input->rows[0].isSelectedForEditing = true;
+    timeRows->rows[0].isSelectedForEditing = true;
   }
 }
 
@@ -58,12 +59,14 @@ void Input::toggleSet(Input* input)
 //
 void Input::changeRow(Input* input)
 {
-  if (!isEditingModeEnabled(input->rows))
+  TimeRows *timeRows = input->timeRows;
+
+  if (!timeRows->isEditingModeEnabled())
     return;
 
-  int selectedRowIndex = indexOfSelectedRow(input->rows);
-  input->rows[selectedRowIndex].isSelectedForEditing = false;
-  input->rows[selectedRowIndex + 1 % sizeof(input->rows)].isSelectedForEditing = true;
+  int selectedRowIndex = input->timeRows->indexOfSelectedRow();
+  timeRows->rows[selectedRowIndex].isSelectedForEditing = false;
+  timeRows->rows[selectedRowIndex + 1 % timeRows->rows.size()].isSelectedForEditing = true;
 }
 
 
@@ -72,9 +75,11 @@ void Input::changeRow(Input* input)
 //
 void Input::increaseTimeValue(Input* input)
 {
-  if (!isEditingModeEnabled(input->rows))
+  TimeRows *timeRows = input->timeRows;
+
+  if (!timeRows->isEditingModeEnabled())
     return;
 
-  int selectedRowIndex = indexOfSelectedRow(input->rows);
-  input->rows[selectedRowIndex]->timeValue = input->rows[selectedRowIndex]->timeValue + 1 % input->rows[selectedRowIndex]->maxTimeValue;
+  int selectedRowIndex = timeRows->indexOfSelectedRow();
+  timeRows->rows[selectedRowIndex].timeValue = timeRows->rows[selectedRowIndex].timeValue + 1 % timeRows->rows[selectedRowIndex].maxTimeValue;
 }

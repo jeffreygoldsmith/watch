@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include <Vector.h>
-#include "Row.h"
+#include "TimeRows.h"
 
 using namespace std;
 
@@ -11,11 +11,11 @@ class Display
 {
   public:
     Display();
-    void Init(Vector<Row*>);
+    void Init(TimeRows *timeRows);
     void UpdateDisplay();
     void DisplayRow(Row);
 
-    Vector<Row*> rows;
+    TimeRows *timeRows;
 
   protected:
     void solid(Row);
