@@ -26,7 +26,7 @@ Display::Display() {}
 //
 // Display::Init() -- Class initializer
 //
-void Display::Init(Vector<Row> rows)
+void Display::Init(Vector<Row*> rows)
 {
   this->rows = rows;
 }

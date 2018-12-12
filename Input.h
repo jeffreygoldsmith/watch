@@ -7,20 +7,23 @@
 #include "Vector.h"
 #include "Row.h"
 
+class Button;
+
 class Input
 {
   public:
     Input();
-    void Init(Vector<Row>, RTC&, int, int);
-    void toggleSet();
-    void changeRow();
-    void increaseTimeValue();
+    void Init(Vector<Row*> rows, RTC *rtc, int buttonOnePin, int buttonTwoPin);
     void TakeInput();
 
-    Vector<Row> rows;
-    RTC rtc;
-    Button buttonOne;
-    Button buttonTwo;
+    static void toggleSet(Input* input);
+    static void changeRow(Input* input);
+    static void increaseTimeValue(Input* input);
+
+    Vector<Row*> rows;
+    RTC *rtc;
+    Button *buttonOne;
+    Button *buttonTwo;
 };
 
 #endif // INPUT_H

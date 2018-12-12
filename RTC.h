@@ -11,11 +11,11 @@ class RTC
 {
   public:
     RTC();
-    void Init(Vector<Row>);
+    void Init(Vector<Row*>);
     void Read();
     void SetTime(tm);
 
-    Vector<Row> rows;
+    Vector<Row*> rows;
 
 	protected:
 		RTC_DS1307 rtc;

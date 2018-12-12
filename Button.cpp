@@ -13,8 +13,9 @@ Button::Button() {}
 //
 // Button::Init() -- Class initializer
 //
-void Button::Init(int pin, void (*press)(), void (*hold)())
+void Button::Init(Input *input, int pin, void (*press)(Input *input), void (*hold)(Input *input))
 {
+  this->input = input;
   this->pin = pin;
   this->press = press;
   this->hold = hold;
@@ -37,9 +38,9 @@ void Button::Poll()
     {
       if (millis() - pressStartTime >= HOLD_TIME)
       {
-        hold();
+        hold(this->input);
       } else {
-        press();
+        press(this->input);
       }
 
       isButtonBeingPressed = false;

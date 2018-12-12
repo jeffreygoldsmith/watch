@@ -11,11 +11,11 @@ class Display
 {
   public:
     Display();
-    void Init(Vector<Row>);
+    void Init(Vector<Row*>);
     void UpdateDisplay();
     void DisplayRow(Row);
 
-    Vector<Row> rows;
+    Vector<Row*> rows;
 
   protected:
     void solid(Row);

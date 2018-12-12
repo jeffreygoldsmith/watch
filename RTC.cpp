@@ -18,7 +18,7 @@ RTC::RTC() {}
 //
 // Function to initialize RTC.
 //
-void RTC::Init(Vector<Row> rows)
+void RTC::Init(Vector<Row*> rows)
 {
   this->rows = rows;
   rtc.begin();
