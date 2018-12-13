@@ -20,9 +20,21 @@ RTC::RTC() {}
 //
 void RTC::Init(TimeRows *timeRows)
 {
+  Serial.println("Initializing RTC object");
   this->timeRows = timeRows;
-  rtc.begin();
+  if (!rtc.begin())
+    Serial.println("Could not find RTC.");
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // Flash current time onto RTC
+}
+
+
+void printTime(int h, int m, int s)
+{
+  Serial.print(h);
+  Serial.print(":");
+  Serial.print(m);
+  Serial.print(":");
+  Serial.print(s);
 }
 
 
@@ -36,8 +48,14 @@ void RTC::Read()
   if (!timeRows->isEditingModeEnabled())
   {
     if (now.unixtime() - unixTimePrev == 1) // Check for second transition
-    {
+    {      
       tm decodedTime = Decode(now.unixtime()); // Compute and decode current time
+
+      Serial.print("Updating time from ");
+      printTime(timeRows->rows[0].timeValue, timeRows->rows[1].timeValue, timeRows->rows[2].timeValue);
+      Serial.print(" to ");
+      printTime(decodedTime.h, decodedTime.m, decodedTime.s);
+      Serial.println();
 
       timeRows->rows[0].timeValue = decodedTime.h; // Set row time values
       timeRows->rows[1].timeValue = decodedTime.m;

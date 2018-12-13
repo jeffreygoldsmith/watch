@@ -37,20 +37,20 @@ Vector<Row> rowVector(rowArray);
 TimeRows rows(rowVector);
 
 RTC rtc;
-Input input;
-Display display;
+// Input input;
+// Display display;
 
 void setup()
 {
   Serial.begin(9600);
   rtc.Init(&rows);
-  input.Init(&rows, &rtc, BUTTON_PIN_1, BUTTON_PIN_2);
-  display.Init(&rows);
+  // input.Init(&rows, &rtc, BUTTON_PIN_1, BUTTON_PIN_2);
+  // display.Init(&rows);
 }
 
 void loop()
 {
-  input.TakeInput();
+  // input.TakeInput();
   rtc.Read();
-  display.UpdateDisplay();
+  // display.UpdateDisplay();
 }
