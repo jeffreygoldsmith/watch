@@ -51,11 +51,11 @@ void RTC::Read()
     {      
       tm decodedTime = Decode(now.unixtime()); // Compute and decode current time
 
-      Serial.print("Updating time from ");
-      printTime(timeRows->rows[0].timeValue, timeRows->rows[1].timeValue, timeRows->rows[2].timeValue);
-      Serial.print(" to ");
-      printTime(decodedTime.h, decodedTime.m, decodedTime.s);
-      Serial.println();
+//      Serial.print("Updating time from ");
+//      printTime(timeRows->rows[0].timeValue, timeRows->rows[1].timeValue, timeRows->rows[2].timeValue);
+//      Serial.print(" to ");
+//      printTime(decodedTime.h, decodedTime.m, decodedTime.s);
+//      Serial.println();
 
       timeRows->rows[0].timeValue = decodedTime.h; // Set row time values
       timeRows->rows[1].timeValue = decodedTime.m;

@@ -7,10 +7,10 @@
 byte controlPins[] = { 2, 3, 4, 5, 6 };
 Chaplex ledDisplay(controlPins, CONTROL_PIN_LENGTH);
 charlieLed leds[]  =  { { 1, 0 }, { 2, 0 }, { 3, 0 }, { 4, 0 },
-                          { 0, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 },
-                          { 0, 2 }, { 1, 2 }, { 3, 2 }, { 4, 2 },
-                          { 0, 3 }, { 1, 3 }, { 2, 3 }, { 4, 3 },
-                          { 0, 4 }, { 1, 4 }, { 2, 4 } };
+                        { 0, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 },
+                        { 0, 2 }, { 1, 2 }, { 3, 2 }, { 4, 2 },
+                        { 0, 3 }, { 1, 3 }, { 2, 3 }, { 4, 3 },
+                        { 0, 4 }, { 1, 4 }, { 2, 4 } };
 
 //
 // Class to control information displayed on LED Display.
@@ -28,6 +28,7 @@ Display::Display() {}
 //
 void Display::Init(TimeRows *timeRows)
 {
+  Serial.println("Initializing Display class");
   this->timeRows = timeRows;
 }
 

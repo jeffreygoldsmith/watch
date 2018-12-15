@@ -24,33 +24,33 @@ using namespace std;
 #define MINUTE_OVERFLOW           60
 #define SECOND_OVERFLOW           60
 
-#define HOUR_LED_ARRAY_INDEX      14
+#define HOUR_LED_ARRAY_INDEX      12
 #define MINUTE_LED_ARRAY_INDEX    6
 #define SECOND_LED_ARRAY_INDEX    0
 
 
-Row hourRow = Row{0, HOUR_OVERFLOW, HOUR_BIT_LENGTH, HOUR_LED_ARRAY_INDEX, false};
-Row minuteRow = Row{0, MINUTE_OVERFLOW, MINUTE_BIT_LENGTH, MINUTE_LED_ARRAY_INDEX, false};
-Row secondRow = Row{0, SECOND_OVERFLOW, SECOND_BIT_LENGTH, SECOND_LED_ARRAY_INDEX, false};
+Row hourRow    = Row{0, HOUR_OVERFLOW, HOUR_BIT_LENGTH, HOUR_LED_ARRAY_INDEX, false};
+Row minuteRow  = Row{0, MINUTE_OVERFLOW, MINUTE_BIT_LENGTH, MINUTE_LED_ARRAY_INDEX, false};
+Row secondRow  = Row{0, SECOND_OVERFLOW, SECOND_BIT_LENGTH, SECOND_LED_ARRAY_INDEX, false};
 Row rowArray[] = { hourRow, minuteRow, secondRow };
-Vector<Row> rowVector(rowArray);
+Vector<Row> rowVector(rowArray, 3);
 TimeRows rows(rowVector);
 
-RTC rtc;
+ RTC rtc;
 // Input input;
-// Display display;
+Display display;
 
 void setup()
 {
   Serial.begin(9600);
-  rtc.Init(&rows);
+   rtc.Init(&rows);
   // input.Init(&rows, &rtc, BUTTON_PIN_1, BUTTON_PIN_2);
-  // display.Init(&rows);
+  display.Init(&rows);
 }
 
 void loop()
 {
   // input.TakeInput();
   rtc.Read();
-  // display.UpdateDisplay();
+  display.UpdateDisplay();
 }
