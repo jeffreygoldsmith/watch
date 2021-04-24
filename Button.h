@@ -13,13 +13,11 @@ class Button
     void Poll();
 
   protected:
-    void (*press)();
-    void (*hold)();
-    int pin;
-    int value;
-    int previousValue;
-    bool isButtonBeingPressed;
-    unsigned long pressStartTime;
+    void (*press)();              // A handler to be called if the button is pressed
+    void (*hold)();               // A handler to be called if the button is held down for one second
+    int pin;                      // The physical pin corresponding to the button
+    bool previousButtonState;     // A lagging value of the button readout
+    unsigned long pressStartTime; // A count of how long the button has been held down for in milliseconds
 };
 
 #endif // BUTTON_H

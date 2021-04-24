@@ -25,30 +25,27 @@ void Button::Init(int pin, void (*press)(), void (*hold)())
 //
 // Button:Poll() -- Poll button for presses
 //
+// Assumes that the button is configured in such a fashion that
+// the button is HIGH when open and LOW when closed.
+//
 void Button::Poll()
 {
-  value = digitalRead(pin);
+  bool currentButtonValue = digitalRead(pin);
 
-  // If the button has either just been pressed or released
-  if (value && !previousValue)
+  // Because the button is in the HIGH state by default,
+  // a press is seen by a current value of LOW and a previous value of HIGH.
+  // Similarly, a release is seen by the opposite.
+  if (!currentButtonValue && previousButtonValue) // Button press down
   {
-    // The button was released
-    if (isButtonBeingPressed)
+    pressStartTime = millis();
+  } else if (currentButtonValue && !previousButtonValue) { // Button release
+    if (millis() - pressStartTime >= HOLD_TIME)
     {
-      if (millis() - pressStartTime >= HOLD_TIME)
-      {
-        hold();
-      } else {
-        press();
-      }
-
-      isButtonBeingPressed = false;
+      hold();
     } else {
-      // The button has been pressed
-      isButtonBeingPressed = true;
-      pressStartTime = millis();
+      press();
     }
   }
 
-  previousValue = digitalRead(pin);
+  previousButtonValue = currentButtonValue;
 }
